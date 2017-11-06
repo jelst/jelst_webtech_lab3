@@ -16,9 +16,9 @@ app.use(bodyParser.json());
 var port = process.env.PORT || 8080;        // set our port
 
 var mongoose   = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/bear');
+mongoose.connect('mongodb://localhost:27017/message');
 
-var Bear = require('./bear');
+var Message = require('./message');
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -38,71 +38,74 @@ router.get('/', function(req, res) {
 
 // more routes for our API will happen here
 
-// on routes that end in /bears
+// on routes that end in /messages
 // ----------------------------------------------------
-router.route('/bears')
+router.route('/messages')
 
-    // create a bear (accessed at POST http://localhost:8080/api/bears)
+    // create a message (accessed at POST http://localhost:8080/api/messages)
     .post(function(req, res) {
+        var date = new Date();
+        
+        var message = new Message();      // create a new instance of the Message model
+        message.msg = req.body.msg;  // set the messages msg (comes from the request)
+        message.time = message.time = date.toLocaleTimeString();
+        message.code = "SE3316";
 
-        var bear = new Bear();      // create a new instance of the Bear model
-        bear.name = req.body.name;  // set the bears name (comes from the request)
-
-        // save the bear and check for errors
-        bear.save(function(err) {
+        // save the message and check for errors
+        message.save(function(err) {
             if (err)
                 res.send(err);
 
-            res.json({ message: 'Bear created!' });
+            res.json({ message: 'Message created!' });
         });
 
     })
     .get(function(req, res) {
-        Bear.find(function(err, bears) {
+        Message.find(function(err, messages) {
             if (err)
                 res.send(err);
 
-            res.json(bears);
+            res.json(messages);
         });
     });
     
-// on routes that end in /bears/:bear_id
+// on routes that end in /messages/:message_id
 // ----------------------------------------------------
-router.route('/bears/:bear_id')
+router.route('/messages/:message_id')
 
-    // get the bear with that id (accessed at GET http://localhost:8080/api/bears/:bear_id)
+    // get the message with that id (accessed at GET http://localhost:8080/api/messages/:message_id)
     .get(function(req, res) {
-        Bear.findById(req.params.bear_id, function(err, bear) {
+        Message.findById(req.params.message_id, function(err, message) {
             if (err)
                 res.send(err);
-            res.json(bear);
+            res.json(message);
         });
     })
     
     .put(function(req, res) {
 
-        // use our bear model to find the bear we want
-        Bear.findById(req.params.bear_id, function(err, bear) {
+        // use our message model to find the message we want
+        Message.findById(req.params.message_id, function(err, message) {
 
             if (err)
                 res.send(err);
 
-            bear.name = req.body.name;  // update the bears info
+            message.msg = req.body.msg;  // update the messages info
 
-            // save the bear
-            bear.save(function(err) {
+            // save the message
+            message.save(function(err) {
                 if (err)
                     res.send(err);
 
-                res.json({ message: 'Bear updated!' });
+                res.json({ message: 'Message updated!' });
             });
 
         });
     })
     .delete(function(req, res) {
-        Bear.remove({
-            _id: req.params.bear_id
-        }, function(err, bear) {
+        Message.remove({
+            _id: req.params.message_id
+        }, function(err, message) {
             if (err)
                 res.send(err);
 
